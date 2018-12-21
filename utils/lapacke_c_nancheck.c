@@ -38,13 +38,16 @@ lapack_logical LAPACKE_c_nancheck( lapack_int n,
                                     const lapack_complex_float *x,
                                     lapack_int incx )
 {
-    lapack_int i, inc;
+    lapack_int i, inc, i0;
 
     if( incx == 0 ) return (lapack_logical) LAPACK_CISNAN( x[0] );
     inc = ( incx > 0 ) ? incx : -incx ;
 
-    for( i = 0; i < n*inc; i+=inc ) {
-        if( LAPACK_CISNAN( x[i] ) )
+    for( i = 0; i < n*inc; i+=inc*256 ) {
+		lapack_logical isnan = 0;
+		for( i0 = i; i0 < MIN(i + inc*256, n*inc); i0+=inc )
+			isnan |= LAPACK_CISNAN( x[i0] );
+		if( isnan )
             return (lapack_logical) 1;
     }
     return (lapack_logical) 0;

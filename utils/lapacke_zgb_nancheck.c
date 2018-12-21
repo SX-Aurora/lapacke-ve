@@ -40,22 +40,28 @@ lapack_logical LAPACKE_zgb_nancheck( int matrix_layout, lapack_int m,
                                       const lapack_complex_double *ab,
                                       lapack_int ldab )
 {
-    lapack_int i, j;
+	lapack_int i, j, i0;
 
     if( ab == NULL ) return (lapack_logical) 0;
 
     if( matrix_layout == LAPACK_COL_MAJOR ) {
         for( j = 0; j < n; j++ ) {
             for( i = MAX( ku-j, 0 ); i < MIN( m+ku-j, kl+ku+1 );
-                 i++ ) {
-                if( LAPACK_ZISNAN( ab[i+(size_t)j*ldab] ) )
+                 i+=256 ) {
+				lapack_logical isnan = 0;
+				for( i0 = i; i0 < MIN(i+256, MIN( m+ku-j, kl+ku+1 )); i0++ )
+					isnan |= LAPACK_ZISNAN( ab[i0+(size_t)j*ldab] );
+				if( isnan )
                      return (lapack_logical) 1;
             }
         }
     } else if ( matrix_layout == LAPACK_ROW_MAJOR ) {
         for( j = 0; j < n; j++ ) {
-            for( i = MAX( ku-j, 0 ); i < MIN( m+ku-j, kl+ku+1 ); i++ ) {
-                if( LAPACK_ZISNAN( ab[(size_t)i*ldab+j] ) )
+            for( i = MAX( ku-j, 0 ); i < MIN( m+ku-j, kl+ku+1 ); i+=256 ) {
+				lapack_logical isnan = 0;
+				for( i0 = i; i0 < MIN(i+256, MIN( m+ku-j, kl+ku+1 )); i0++ )
+					isnan |= LAPACK_ZISNAN( ab[(size_t)i0*ldab+j] );
+				if( isnan )
                      return (lapack_logical) 1;
             }
         }

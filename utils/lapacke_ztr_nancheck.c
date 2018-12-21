@@ -39,7 +39,7 @@ lapack_logical LAPACKE_ztr_nancheck( int matrix_layout, char uplo, char diag,
                                       const lapack_complex_double *a,
                                       lapack_int lda )
 {
-    lapack_int i, j, st;
+	lapack_int i, j, st, i0;
     lapack_logical colmaj, lower, unit;
 
     if( a == NULL ) return (lapack_logical) 0;
@@ -68,15 +68,21 @@ lapack_logical LAPACKE_ztr_nancheck( int matrix_layout, char uplo, char diag,
      */
     if( ( colmaj || lower ) && !( colmaj && lower ) ) {
         for( j = st; j < n; j++ ) {
-            for( i = 0; i < MIN( j+1-st, lda ); i++ ) {
-                if( LAPACK_ZISNAN( a[i+j*lda] ) )
+            for( i = 0; i < MIN( j+1-st, lda ); i+=256 ) {
+				lapack_logical isnan = 0;
+				for( i0 = i; i0 < MIN(i+256, MIN(j+1-st, lda)); i0++ )
+					isnan |= LAPACK_ZISNAN( a[i0+j*lda] );
+				if( isnan )
                     return (lapack_logical) 1;
             }
         }
     } else {
         for( j = 0; j < n-st; j++ ) {
-            for( i = j+st; i < MIN( n, lda ); i++ ) {
-                if( LAPACK_ZISNAN( a[i+j*lda] ) )
+            for( i = j+st; i < MIN( n, lda ); i+=256 ) {
+				lapack_logical isnan = 0;
+				for( i0 = i; i0 < MIN(i+256, MIN(n, lda)); i0++ )
+					isnan |= LAPACK_ZISNAN( a[i0+j*lda] );
+				if( isnan )
                     return (lapack_logical) 1;
             }
         }

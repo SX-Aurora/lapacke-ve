@@ -39,23 +39,29 @@ lapack_logical LAPACKE_cge_nancheck( int matrix_layout, lapack_int m,
                                       const lapack_complex_float *a,
                                       lapack_int lda )
 {
-    lapack_int i, j;
+	lapack_int i, j, i0, j0;
 
     if( a == NULL ) return (lapack_logical) 0;
 
     if( matrix_layout == LAPACK_COL_MAJOR ) {
         for( j = 0; j < n; j++ ) {
-            for( i = 0; i < MIN( m, lda ); i++ ) {
-                if( LAPACK_CISNAN( a[i+(size_t)j*lda] ) )
+            for( i = 0; i < MIN( m, lda ); i+=256 ) {
+				lapack_logical isnan = 0;
+				for( i0 = i; i0 < MIN(i+256, MIN( m, lda )); i0++ )
+					isnan |= LAPACK_CISNAN( a[i0+(size_t)j*lda] );
+				if( isnan )
                     return (lapack_logical) 1;
             }
         }
     } else if ( matrix_layout == LAPACK_ROW_MAJOR ) {
         for( i = 0; i < m; i++ ) {
-            for( j = 0; j < MIN( n, lda ); j++ ) {
-                if( LAPACK_CISNAN( a[(size_t)i*lda+j] ) )
-                    return (lapack_logical) 1;
-            }
+			for( j = 0; j < MIN( n, lda ); j+=256 ) {
+				lapack_logical isnan = 0;
+				for( j0 = j; j0 < MIN(j+256, MIN( n, lda )); j0++)
+					isnan |= LAPACK_CISNAN( a[(size_t)i*lda+j0] );
+				if( isnan )
+					return (lapack_logical) 1;
+			}
         }
     }
     return (lapack_logical) 0;
