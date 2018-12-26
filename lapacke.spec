@@ -1,9 +1,9 @@
 %define _libdir /opt/nec/ve/lib
 %define _includedir /opt/nec/ve/include
 %define _sharedir /opt/nec/ve/share
-%define __strip /opt/nec/ve/bin/nstrip
-%define optflags -g -O2
-%global __debug_install_post /opt/nec/ve/libexec/find-debuginfo.sh %{nil}
+#%define __strip /opt/nec/ve/bin/nstrip
+#%define optflags -g -O2
+#%global __debug_install_post /opt/nec/ve/libexec/find-debuginfo.sh %{nil}
 
 Summary: LAPACK C interface
 Name: lapacke-ve
@@ -44,14 +44,15 @@ make clean
 make -j 20 lapacke
  
 %install
-export STRIP=/opt/nec/ve/bin/nstrip
+#export STRIP=/opt/nec/ve/bin/nstrip
+export STRIP=/bin/true
 mkdir -p ${RPM_BUILD_ROOT}%{_libdir}
 mkdir -p ${RPM_BUILD_ROOT}%{_libdir}/debug
 mkdir -p ${RPM_BUILD_ROOT}%{_sharedir}/%{name}
 chmod 755 ${RPM_BUILD_ROOT}%{_sharedir}/%{name}
  
 cp -f liblapacke.a ${RPM_BUILD_ROOT}%{_libdir}/
-cp -f liblapacke.a ${RPM_BUILD_ROOT}%{_libdir}/debug
+#cp -f liblapacke.a ${RPM_BUILD_ROOT}%{_libdir}/debug
  
 # Lapacke headers
 mkdir -p ${RPM_BUILD_ROOT}%{_includedir}/lapacke/
