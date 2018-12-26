@@ -43,7 +43,7 @@ TIMER    = INT_ETIME
 # CC is the C compiler, normally invoked with options CFLAGS.
 #
 CC = /opt/nec/ve/bin/ncc
-CFLAGS = -O2
+CFLAGS = -g -O2
 #
 #  The archiver and the flag(s) to use when building archive (library)
 #  If you system has no ranlib, set RANLIB = echo.
